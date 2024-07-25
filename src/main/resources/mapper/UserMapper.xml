@@ -59,7 +59,7 @@
     </select>
     <!--根据账号更新用户信息-->
     <update id="updateUser">
-        UPDATE jr_user SET nick_name = #{nick_name},user_name = #{user_name}, age = #{age}, sex = #{sex}, province = #{province}, city = #{city},email = #{email}, update_time = NOW() WHERE phone = #{phone}
+        UPDATE jr_user SET nick_name = #{nick_name},user_name = #{user_name},age= #{age}, sex = #{sex}, province = #{province}, city = #{city},email = #{email}, update_time = NOW() ,birthday = #{birthday},constellation = #{constellation} WHERE phone = #{phone}
     </update>
     <!--删除用户-->
     <delete id="deleteUser">

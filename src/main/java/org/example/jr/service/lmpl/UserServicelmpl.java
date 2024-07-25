@@ -1,5 +1,6 @@
 package org.example.jr.service.lmpl;
 
+import cn.dev33.satoken.session.SaSession;
 import org.example.jr.entity.User;
 import org.example.jr.entity.WebResult;
 import org.example.jr.mapper.UserMapper;
@@ -22,17 +23,26 @@ public class UserServicelmpl implements UserService {
         WebResult webResult = new WebResult();
         try {
             User findUser = userMapper.getUserByUser(phone);
-            System.out.println(findUser);
             if (findUser.getPhone() == null) {
                 webResult.error("用户不存在");
             } else {
                 if (PasswordEncoder.matches(password, findUser.getPassword())) {
                     // 更新用户登录时间
-                    userMapper.updateLogintime(phone);
-                    StpUtil.login(findUser.getPhone());
-                    webResult.setCode(1);
-                    webResult.setMessage("登陆成功");
-                    webResult.setToken(StpUtil.getTokenValue());
+                    if(StpUtil.isLogin()){
+                        userMapper.updateLogintime(phone);
+                        webResult.setCode(1);
+                        webResult.setMessage("用户已登录");
+                        StpUtil.updateLastActivityToNow();
+                    }else{
+                        Long userId = findUser.getPhone();
+                        StpUtil.login(userId);
+                        userMapper.updateLogintime(phone);
+                        webResult.setCode(1);
+                        webResult.setMessage("登陆成功");
+                        StpUtil.getSession().set("user" ,findUser);
+                        webResult.setToken(StpUtil.getTokenValue());
+                    }
+
                 } else {
                     webResult.setCode(-1);
                     webResult.setMessage("密码错误");

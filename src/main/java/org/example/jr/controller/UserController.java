@@ -1,5 +1,6 @@
 package org.example.jr.controller;
 
+import afu.org.checkerframework.checker.oigj.qual.O;
 import cn.dev33.satoken.stp.StpUtil;
 import org.example.jr.entity.User;
 import org.example.jr.entity.WebResult;
@@ -11,6 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDate;
+import java.time.Period;
 
 
 @RestController
@@ -40,8 +44,8 @@ public class UserController {
     @PostMapping("/userlogout")
     @ResponseBody
     public boolean updatePwd(Long phone) {
-         if(!StpUtil.isLogin()){
-             // 退出当前会话
+         if(StpUtil.isLogin()){
+             // 退出登录成功
              StpUtil.logout(phone);
              return true;
          }else {
@@ -65,7 +69,19 @@ public class UserController {
     public WebResult updatePwd(Long phone, String password,String province,String city) {
         return userService.updatePwd(phone,password,province,city);
     }
-
+    /*
+     * 用户信息接口
+     * */
+    @PostMapping("/getUserData")
+    @ResponseBody
+    public WebResult getUserdata() {
+        WebResult webResult = new WebResult();
+        if(StpUtil.isLogin()){
+            User user = (User) StpUtil.getSession().get("user");
+            webResult.setData(user);
+        }
+        return webResult;
+    }
     /*
      * 修改用户信息
      * */
@@ -73,10 +89,24 @@ public class UserController {
     @ResponseBody
     public WebResult updateUser(User user) {
         WebResult webResult = new WebResult();
-        userMapper.updateUser(user);
+        try {
+            LocalDate birthday = user.getBirthday(); //获取生日
+            LocalDate currentDate = LocalDate.now(); //获取当前时间
+            Period age = Period.between(birthday, currentDate); //算出年龄
+            user.setAge(age.getYears()); //插入年龄
+            user.setBirthday(birthday); //插入生日
+            userMapper.updateUser(user);
+            webResult.setCode(1);
+        }catch (Exception e){
+            e.printStackTrace();
+            webResult.error("访问数据库出错");
+        }
+
         return webResult;
     }
-
+    /*
+     * 删除用户
+     * */
     @PostMapping("/userDelete")
     @ResponseBody
     public WebResult deleteUser(Long phone) {
@@ -110,4 +140,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
+
 }
