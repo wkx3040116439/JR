@@ -24,6 +24,6 @@ public interface UserMapper extends BaseMapper<User> {
     //更新用户登录时间
     void updateLogintime(Long phone);
 
-    //更新用户密码
+    //更新用户密码66666
     void updatePwd(Long phone,String password);
 }
