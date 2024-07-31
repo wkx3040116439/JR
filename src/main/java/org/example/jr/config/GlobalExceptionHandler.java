@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleNotLoginException(NotLoginException e) {
         // 创建自定义的错误响应
         ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setCode(0);
+        errorResponse.setCode(-55);
         errorResponse.setMessage("请登录后再进行此操作。");
 
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);

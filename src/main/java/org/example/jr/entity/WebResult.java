@@ -28,7 +28,6 @@ public class WebResult {
     }
 
     public void error(String message) {
-        this.code = 0;
         this.message = message;
     }
 }

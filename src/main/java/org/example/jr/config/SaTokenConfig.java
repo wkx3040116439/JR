@@ -22,6 +22,6 @@ public class SaTokenConfig implements WebMvcConfigurer {
                     StpUtil.checkLogin();
                 }))
                 .addPathPatterns("/**") // 拦截的路由
-                .excludePathPatterns("/JR/userLogin", "/JR/userRegister","/userlogout"); // 放行的路由
+                .excludePathPatterns("/JR/userLogin", "/JR/userRegister","/JR/userlogout","/JR/useRespwd"); // 放行的路由
     }
 }

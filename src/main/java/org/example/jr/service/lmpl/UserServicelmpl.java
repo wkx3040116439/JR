@@ -19,12 +19,13 @@ public class UserServicelmpl implements UserService {
     private UserMapper userMapper;
 
     @Override
-    public WebResult UserLogin(Long phone, String password) {
+    public WebResult UserLogin(String phone, String password) {
         WebResult webResult = new WebResult();
         try {
             User findUser = userMapper.getUserByUser(phone);
             if (findUser.getPhone() == null) {
-                webResult.error("用户不存在");
+                webResult.setCode(0);
+                webResult.error("账号错误");
             } else {
                 if (PasswordEncoder.matches(password, findUser.getPassword())) {
                     // 更新用户登录时间
@@ -34,7 +35,7 @@ public class UserServicelmpl implements UserService {
                         webResult.setMessage("用户已登录");
                         StpUtil.updateLastActivityToNow();
                     }else{
-                        Long userId = findUser.getPhone();
+                        String userId = findUser.getPhone();
                         StpUtil.login(userId);
                         userMapper.updateLogintime(phone);
                         webResult.setCode(1);
@@ -44,7 +45,7 @@ public class UserServicelmpl implements UserService {
                     }
 
                 } else {
-                    webResult.setCode(-1);
+                    webResult.setCode(0);
                     webResult.setMessage("密码错误");
                 }
             }
@@ -85,15 +86,18 @@ public class UserServicelmpl implements UserService {
 
     //更新用户密码
     @Override
-    public WebResult updatePwd(Long phone, String password,String province,String city) {
+    public WebResult updatePwd(String phone, String password,String province,String city) {
         WebResult webResult = new WebResult();
+        System.out.println(province+city);
         try {
             User findUser = userMapper.getUserByUser(phone);
             if(findUser == null){
+                webResult.setCode(-1);
                 webResult.error("账号不存在");
             }else {
                 if (province.equals(findUser.getProvince()) && city.equals(findUser.getCity())){
-                    userMapper.updatePwd(phone,password);
+                    String Newpassword = PasswordEncoder.encode(password);
+                    userMapper.updatePwd(phone,Newpassword);
                     webResult.setCode(1);
                     webResult.setMessage("密码重置成功");
                 }else {
@@ -108,7 +112,7 @@ public class UserServicelmpl implements UserService {
     }
     //删除用户
     @Override
-    public WebResult deleteUser(Long phone) {
+    public WebResult deleteUser(String phone) {
         return null;
     }
 

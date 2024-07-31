@@ -1,6 +1,5 @@
 package org.example.jr.controller;
 
-import afu.org.checkerframework.checker.oigj.qual.O;
 import cn.dev33.satoken.stp.StpUtil;
 import org.example.jr.entity.User;
 import org.example.jr.entity.WebResult;
@@ -16,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.time.Period;
 
-
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/JR")
 public class UserController {
@@ -34,7 +33,7 @@ public class UserController {
      * */
     @PostMapping("/userLogin")
     @ResponseBody
-    public WebResult login(Long phone, String password) {
+    public WebResult login(String phone, String password) {
         return userService.UserLogin(phone,password);
     }
 
@@ -43,7 +42,7 @@ public class UserController {
      * */
     @PostMapping("/userlogout")
     @ResponseBody
-    public boolean updatePwd(Long phone) {
+    public boolean updatePwd(String phone) {
          if(StpUtil.isLogin()){
              // 退出登录成功
              StpUtil.logout(phone);
@@ -64,9 +63,9 @@ public class UserController {
     /*
      * 修改用户密码
      * */
-    @PostMapping("/userUpdatepwd")
+    @PostMapping("/useRespwd")
     @ResponseBody
-    public WebResult updatePwd(Long phone, String password,String province,String city) {
+    public WebResult updatePwd(String phone, String password,String province,String city) {
         return userService.updatePwd(phone,password,province,city);
     }
     /*
@@ -109,7 +108,7 @@ public class UserController {
      * */
     @PostMapping("/userDelete")
     @ResponseBody
-    public WebResult deleteUser(Long phone) {
+    public WebResult deleteUser(String phone) {
         WebResult webResult = new WebResult();
         userMapper.deleteUser(phone);
         return webResult;
@@ -118,7 +117,7 @@ public class UserController {
 
     // 上传用户头像接口
     @PostMapping("/uploadUserAvatar")
-    public ResponseEntity uploadUserAvatar(@RequestParam("file") MultipartFile file, @RequestParam("phone") Long phone) {
+    public ResponseEntity uploadUserAvatar(@RequestParam("file") MultipartFile file, @RequestParam("phone") String phone) {
         try {
             String uploadResult = minIOService.uploadUserAvatar(file, phone);
             if (uploadResult.startsWith("http")) {
@@ -132,7 +131,7 @@ public class UserController {
     }
     // 获取用户头像接口
     @GetMapping("/getUserAvatar")
-    public ResponseEntity getUserAvatar(@RequestParam("phone")Long phone) {
+        public ResponseEntity getUserAvatar(@RequestParam("phone")String phone) {
         try {
             String avatarUrl = minIOService.getUserAvatarUrl(phone);
             return ResponseEntity.ok(avatarUrl);

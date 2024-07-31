@@ -30,7 +30,7 @@ public class MinIOService {
      * @param phone 用户账号
      * @return 成功上传后的头像 URL
      */
-    public String uploadUserAvatar(MultipartFile file, Long phone) {
+    public String uploadUserAvatar(MultipartFile file, String phone) {
         String objectName = "jr-user/" + phone + ".png"; // 保存为 png 格式
 
         try {
@@ -67,7 +67,7 @@ public class MinIOService {
      * @param phone 用户账号
      * @return 用户头像的访问 URL
      */
-    public String getUserAvatarUrl(Long phone) {
+    public String getUserAvatarUrl(String phone) {
         String objectName = "jr-user/" + phone + ".png"; // 假设头像文件格式为 png
         // 生成文件的访问 URL
         return properties.getEndpoint() + "/" + properties.getBucketName() + "/" + objectName;

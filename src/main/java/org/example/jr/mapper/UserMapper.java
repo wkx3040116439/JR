@@ -10,20 +10,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserMapper extends BaseMapper<User> {
     //获取用户信息
-    User getUserByUser(Long phone);
+    User getUserByUser(String phone);
     //插入用户信息
     void insertUser(User user);
 
     //更新用户信息
     void updateUser(User user);
     //插入用户头像
-    void userImg(Long phone,String imgurl);
+    void userImg(String phone,String imgurl);
     //删除用户信息
-    void deleteUser(Long phone);
+    void deleteUser(String phone);
 
     //更新用户登录时间
-    void updateLogintime(Long phone);
+    void updateLogintime(String phone);
 
     //更新用户密码66666
-    void updatePwd(Long phone,String password);
+    void updatePwd(String phone,String password);
 }

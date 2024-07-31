@@ -23,11 +23,11 @@ public class User {
     private String sex;
     private String province;
     private String city;
-    private Long phone;
+    private String phone;
     private LocalDate birthday;
     private String constellation;
     private String email;
-    private Long account;
+    private String account;
     private String password;
     private LocalDateTime last_login_time;
     private LocalDateTime register_time;
