@@ -23,6 +23,7 @@ public class User {
     private String sex;
     private String province;
     private String city;
+    private String industry;
     private String phone;
     private LocalDate birthday;
     private String constellation;
@@ -33,4 +34,5 @@ public class User {
     private LocalDateTime register_time;
     private LocalDateTime update_time;
     private String imgurl;
+    private String bgurl;
 }

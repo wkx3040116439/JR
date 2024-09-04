@@ -17,14 +17,12 @@ import lombok.ToString;
 public class WebResult {
     private int code;
     private String message;
-    private String token;
     private Object data;
 
 
-    public void success(String message,String token) {
+    public void success(String message) {
         this.code = 1;
         this.message = message;
-        this.token = token;
     }
 
     public void error(String message) {

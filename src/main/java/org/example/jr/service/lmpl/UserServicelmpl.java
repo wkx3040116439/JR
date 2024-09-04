@@ -9,6 +9,7 @@ import org.example.jr.util.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import cn.dev33.satoken.stp.StpUtil;
+
 import java.time.LocalDate;
 import java.time.Period;
 
@@ -21,29 +22,28 @@ public class UserServicelmpl implements UserService {
     @Override
     public WebResult UserLogin(String phone, String password) {
         WebResult webResult = new WebResult();
+
+        // 校验输入的手机号和密码是否为空
+        if (phone == null || phone.isEmpty() || password == null || password.isEmpty()) {
+            webResult.setCode(0);
+            webResult.setMessage("手机号或密码不能为空");
+            return webResult;
+        }
+
         try {
             User findUser = userMapper.getUserByUser(phone);
-            if (findUser.getPhone() == null) {
+            if (findUser == null || findUser.getPhone() == null) {
                 webResult.setCode(0);
-                webResult.error("账号错误");
+                webResult.setMessage("账号错误");
             } else {
                 if (PasswordEncoder.matches(password, findUser.getPassword())) {
                     // 更新用户登录时间
-                    if(StpUtil.isLogin()){
-                        userMapper.updateLogintime(phone);
-                        webResult.setCode(1);
-                        webResult.setMessage("用户已登录");
-                        StpUtil.updateLastActivityToNow();
-                    }else{
-                        String userId = findUser.getPhone();
-                        StpUtil.login(userId);
-                        userMapper.updateLogintime(phone);
-                        webResult.setCode(1);
-                        webResult.setMessage("登陆成功");
-                        StpUtil.getSession().set("user" ,findUser);
-                        webResult.setToken(StpUtil.getTokenValue());
-                    }
-
+                    String account = findUser.getPhone();
+                    StpUtil.login(account);
+                    userMapper.updateLogintime(phone);
+                    webResult.setCode(1);
+                    webResult.setData(findUser);
+                    webResult.setMessage("登陆成功");
                 } else {
                     webResult.setCode(0);
                     webResult.setMessage("密码错误");
@@ -51,11 +51,11 @@ public class UserServicelmpl implements UserService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            webResult.error("访问数据库出错");
+            webResult.setCode(0);
+            webResult.setMessage("访问数据库出错");
         }
         return webResult;
     }
-
 
     @Override
     public WebResult UserRegister(User user) {
@@ -76,7 +76,7 @@ public class UserServicelmpl implements UserService {
                 userMapper.insertUser(user);
                 webResult.setCode(1);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             webResult.error("访问数据库出错");
         }
@@ -86,30 +86,31 @@ public class UserServicelmpl implements UserService {
 
     //更新用户密码
     @Override
-    public WebResult updatePwd(String phone, String password,String province,String city) {
+    public WebResult updatePwd(String phone, String password, String province, String city) {
         WebResult webResult = new WebResult();
-        System.out.println(province+city);
+        System.out.println(province + city);
         try {
             User findUser = userMapper.getUserByUser(phone);
-            if(findUser == null){
+            if (findUser == null) {
                 webResult.setCode(-1);
                 webResult.error("账号不存在");
-            }else {
-                if (province.equals(findUser.getProvince()) && city.equals(findUser.getCity())){
+            } else {
+                if (province.equals(findUser.getProvince()) && city.equals(findUser.getCity())) {
                     String Newpassword = PasswordEncoder.encode(password);
-                    userMapper.updatePwd(phone,Newpassword);
+                    userMapper.updatePwd(phone, Newpassword);
                     webResult.setCode(1);
                     webResult.setMessage("密码重置成功");
-                }else {
+                } else {
                     webResult.error("账号注册地信息错误");
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             webResult.error("访问数据库出错");
         }
         return webResult;
     }
+
     //删除用户
     @Override
     public WebResult deleteUser(String phone) {

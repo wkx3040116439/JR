@@ -18,6 +18,8 @@ public interface UserMapper extends BaseMapper<User> {
     void updateUser(User user);
     //插入用户头像
     void userImg(String phone,String imgurl);
+    //插入用户背景
+    void userBg(String phone,String bgurl);
     //删除用户信息
     void deleteUser(String phone);
 

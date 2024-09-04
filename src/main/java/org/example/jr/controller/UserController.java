@@ -14,7 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.Period;
-@CrossOrigin(origins = "*")
+
+
 @RestController
 @RequestMapping("/JR")
 public class UserController {
@@ -39,18 +40,27 @@ public class UserController {
     /*
      * 用户登出
      * */
-    @PostMapping("/userlogout")
+    @PostMapping("/userLogout")
     @ResponseBody
-    public boolean updatePwd(String phone) {
-         if(StpUtil.isLogin()){
-             // 退出登录成功
-             StpUtil.logout(phone);
-             return true;
-         }else {
-             // 当前用户未登录
-             return false;
-         }
+    public WebResult loginout() {
+        WebResult webResult = new WebResult();
+        try {
+            if (StpUtil.isLogin()) {
+                // Perform logout and session cleanup
+                StpUtil.logout();
+                webResult.setCode(1);
+                webResult.setMessage("退出登录成功");
+            } else {
+                webResult.setCode(0);
+                webResult.setMessage("账户未登录");
+            }
+        } catch (Exception e) {
+            webResult.setCode(-1);
+            e.printStackTrace();
+        }
+        return webResult;
     }
+
     /*
     * 用户注册
     * */
@@ -70,13 +80,17 @@ public class UserController {
     /*
      * 用户信息接口
      * */
-    @PostMapping("/getUserData")
+        @PostMapping("/getUserData")
     @ResponseBody
-    public WebResult getUserdata() {
+    public WebResult getUserdata(String phone) {
         WebResult webResult = new WebResult();
         if(StpUtil.isLogin()){
-            User user = (User) StpUtil.getSession().get("user");
-            webResult.setData(user);
+           User user = userMapper.getUserByUser(phone);
+           webResult.setCode(1);
+           webResult.setData(user);
+        }else {
+            webResult.setCode(0);
+            webResult.error("用户未登录");
         }
         return webResult;
     }
@@ -88,8 +102,11 @@ public class UserController {
     public WebResult updateUser(User user) {
         WebResult webResult = new WebResult();
         try {
+            System.out.println(user);
             LocalDate birthday = user.getBirthday(); //获取生日
+            System.out.println("生日"+birthday);
             LocalDate currentDate = LocalDate.now(); //获取当前时间
+            System.out.println("现在时间"+birthday);
             Period age = Period.between(birthday, currentDate); //算出年龄
             user.setAge(age.getYears()); //插入年龄
             user.setBirthday(birthday); //插入生日
@@ -97,6 +114,7 @@ public class UserController {
             webResult.setCode(1);
         }catch (Exception e){
             e.printStackTrace();
+            webResult.setCode(0);
             webResult.error("访问数据库出错");
         }
 
@@ -115,10 +133,10 @@ public class UserController {
 
 
     // 上传用户头像接口
-    @PostMapping("/uploadUserAvatar")
-    public ResponseEntity uploadUserAvatar(@RequestParam("file") MultipartFile file, @RequestParam("phone") String phone) {
+    @PostMapping("/uploadUserImg")
+    public ResponseEntity uploadUserImg(@RequestParam("file") MultipartFile file, @RequestParam("phone") String phone) {
         try {
-            String uploadResult = minIOService.uploadUserAvatar(file, phone);
+            String uploadResult = minIOService.uploadUserimg(file, phone);
             if (uploadResult.startsWith("http")) {
                 return ResponseEntity.ok(uploadResult);
             } else {
@@ -128,16 +146,20 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-    // 获取用户头像接口
-    @GetMapping("/getUserAvatar")
-        public ResponseEntity getUserAvatar(@RequestParam("phone")String phone) {
+
+    // 上传用户头像接口
+    @PostMapping("/uploadUserBg")
+    public ResponseEntity uploadUserBg(@RequestParam("file") MultipartFile file, @RequestParam("phone") String phone) {
         try {
-            String avatarUrl = minIOService.getUserAvatarUrl(phone);
-            return ResponseEntity.ok(avatarUrl);
+            String uploadResult = minIOService.uploadUserbg(file, phone);
+            if (uploadResult.startsWith("http")) {
+                return ResponseEntity.ok(uploadResult);
+            } else {
+                return ResponseEntity.ok(uploadResult);
+            }
         } catch (RuntimeException e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-
-
 }
